@@ -1,5 +1,5 @@
-## Authentication method in the web
-#### WS - Seminar
+# Authentication method in the web
+### WS - Seminar
 
 <small>Created by <a href="http://lucar.in">Luca Rinaldi</a></small>
 
@@ -55,7 +55,7 @@ It's a challenge responce system, here the username and the password it's never 
 The server send a random `nonce` and the client have to reply with `hash(user:password:nonce)`
 
 note:
-TOADD:
+TO-ADD:
 - two type session and non-session version
 - the other required header keys
 
@@ -74,15 +74,53 @@ Authorization: Bearer mF_9.B5f-4.1JqM
 ```
 
 
+
 # From stateless to statefull
+we want to avoid to communicate at every request username and password.
+
+we need a way to authenticate a client throw a set of consecutively request.
+
+note:
+HTML is a stateless protocol, but usually application needs to keep information between two distinct calls.
 
 
 
-# Session
-on client or on server
+# HTTP Web Session
+with HTTP/1.1 and CGI there is the possibility to implement a statefull server
+
+the we server can manage the session and retrieve it by a sessionID.
+
+https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#HTTP_session
+https://en.wikipedia.org/wiki/Common_Gateway_Interface
 
 
-## How thouse work
+## How thous work
+![session-flow](img/session_flow.jpg)
+
+note:
+it use cookies to store sessionID on the client, than at each connection retrieve it from an hashtable inside the webserver.
+
+http://machinesaredigging.com/2013/10/29/how-does-a-web-session-work/
+
+
+## PHP example
+```php
+<?php
+session_start();
+if (!isset($_SESSION['count'])) {
+  $_SESSION['count'] = 0;
+} else {
+  $_SESSION['count']++;
+}
+?>
+```
+
+note:
+http://php.net/manual/en/reserved.variables.session.php
+
+
+## Problem
+http://technicalinfo.net/papers/WebBasedSessionManagement.html
 
 
 ## security issue
