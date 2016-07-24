@@ -200,6 +200,15 @@ It safeguard its integrity by:
 - JSON Web Signature (JWS), a sign system.
 - JSON Web Encryption (JWE), an encryption system.
 
+for example:
+```JSON
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+.
+eyJpc3MiOiJsdWNhci5pbiIsImV4cCI6MTQ2OTI2ODcwOSwibmFtZSI6Imx1Y2EiLCJhZG1pbiI6dHJ1ZX0
+.
+5Z5tKUacfE-r_L56uaddeimgREpgk39Fbx6EJ3cuTJg
+```
+
 note:
 JSON Web Token (JWT) is a compact claims representation format intended for space constrained environments such as HTTP Authorization headers and URI query parameters. JWTs encode claims to be transmitted as a JSON [RFC7159] object that is used as the payload of a JSON Web Signature (JWS) [JWS] structure or as the plaintext of a JSON Web Encryption (JWE) [JWE] structure, enabling the claims to be digitally signed or integrity protected with a Message Authentication Code (MAC) and/or encrypted. JWTs are always represented using the JWS Compact Serialization or the JWE Compact Serialization.
 
@@ -271,48 +280,43 @@ eyJpc3MiOiJsdWNhci5pbiIsImV4cCI6MTQ2OTI2ODcwOSwibmFtZSI6Imx1Y2EiLCJhZG1pbiI6dHJ1
 
 ## Authentication Flow
 <pre>
-            +---------+                            +---------+
-            |         |  (A) POST /authenticate    |         |
-            |         +---------------------------->         +--------+
-            |         |  username=..&password=..   |         |  (B)   |
-            |         |                            |         |Generate|
-            |         |   (C) HTTP 200 OK          |         |  JWT   |
-            |         <----------------------------+         <--------+
-            |         |      token: '..JWT..'      |         |
-            |         |                            |   Web   |
-            | Client  |                            |  Server |
-            |         |                            |         |
-            |         |   (D) HTTP GET             |         |
-            |         +---------------------------->         +--------+
-            |         | Authentication: Bearer JWT |         |  (E)   |
-            |         |                            |         |Validate|
-            |         |   (F) HTTP 200 OK          |         |  JWT   |
-            |         <----------------------------+         <--------+
-            +---------+                            +---------+
+
+         +---------+                              +---------+
+         |         |   (A) POST /authenticate     |         |
+         |         +------------------------------>         +--------+
+         |         |  [username=..&password=..]   |         |  (B)   |
+         |         |                              |         |Generate|
+         |         |   (C) HTTP 200 OK            |         |  JWT   |
+         |         <------------------------------+         <--------+
+         |         |      [token: '..JWT..']      |         |
+         |         |                              |   Web   |
+         | Client  |                              |  Server |
+         |         |                              |         |
+         |         |   (D) HTTP GET               |         |
+         |         +------------------------------>         +--------+
+         |         | [Authentication: Bearer JWT] |         |  (E)   |
+         |         |                              |         |Validate|
+         |         |   (F) HTTP 200 OK            |         |  JWT   |
+         |         <------------------------------+         <--------+
+         |         |                              |         |
+         +---------+                              +---------+
+
 </pre>
-
-
-## Insecure implementation
-critical-vulnerabilities-in-json-web-token-libraries
-
-note:
-https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/
 
 
 
 # OAuth 2.0 *[rfc6749]*
 It enables a third-party application to obtain limited access to an HTTP service in behalf of a resource owner.
 
+Three parties:
+- resource owner (end-user)
+
+- client (third-party application)
+
+- resource and authorization server (service that own the resources)
+
 For example: </br>
 *Draw.io, an online flow chart editor, that request the user to access their storage space on Dropbox, to save and load files.* <!-- .element: style="font-size: 26px"-->
-
-
-## Roles
-- resource owner, the end-user
-
-- client, the third-part application
-
-- resource server and authorization server, the service that manges the resource
 
 note:
 - resource owner, An entity capable of granting access to a protected resource. When the resource owner is a person, it is referred to as an end-user.
@@ -325,6 +329,47 @@ note:
 
 
 ## General authentication flow
+<pre>
+
+        +----------+
+        | Resource |
+        |   Owner  |
+        |          |
+        +----------+
+             ^
+             |
+            (B)
+        +----|-----+          Client Identifier      +---------------+
+        |         -+----(A)-- & Redirection URI ---->|               |
+        |  User-   |                                 | Authorization |
+        |  Agent  -+----(B)-- User authenticates --->|     Server    |
+        |          |                                 |               |
+        |         -+----(C)-- Authorization Code ---<|               |
+        +-|----|---+                                 +---------------+
+          |    |                                         ^      v
+         (A)  (C)                                        |      |
+          |    |                                         |      |
+          ^    v                                         |      |
+        +---------+                                      |      |
+        |         |>---(D)-- Authorization Code ---------'      |
+        |  Client |          & Redirection URI                  |
+        |         |                                             |
+        |         |<---(E)----- Access Token -------------------'
+        +---------+       (w/ Optional Refresh Token)
+
+</pre>
+
+note:
+(A) The client initiates the flow by directing the resource owner's user-agent to the authorization endpoint. The client includes its client identifier, requested scope, local state, and a redirection URI to which the authorization server will send the user-agent back once access is granted (or denied).
+
+(B) The authorization server authenticates the resource owner (via the user-agent) and establishes whether the resource owner grants or denies the client's access request.
+
+(C) Assuming the resource owner grants access, the authorization server redirects the user-agent back to the client using the redirection URI provided earlier (in the request or during client registration). The redirection URI includes an authorization code and any local state provided by the client earlier.
+
+(D) The client requests an access token from the authorization server's token endpoint by including the authorization code received in the previous step. When making the request, the client authenticates with the authorization server. The client includes the redirection URI used to obtain the authorization code for verification.
+
+(E) The authorization server authenticates the client, validates the authorization code, and ensures that the redirection URI received matches the URI used to redirect the client in step (C). If valid, the authorization server responds back with an access token and, optionally, a refresh token.
+
 <pre>
             +--------+                               +---------------+
             |        |--(A)- Authorization Request ->|   Resource    |
@@ -344,8 +389,6 @@ note:
             |        |<-(F)--- Protected Resource ---|               |
             +--------+                               +---------------+
 </pre>
-
-note:
 - (A) The client requests authorization from the resource owner. The authorization request can be made directly to the resource owner (as shown), or preferably indirectly via the authorization server as an intermediary.
 - (B) The client receives an authorization grant, which is a credential representing the resource owner's authorization, expressed using one of four grant types defined in this specification or using an extension grant type. The authorization grant type depends on the method used by the client to request authorization and the types supported by the authorization server.
 - (C) The client requests an access token by authenticating with the authorization server and presenting the authorization grant.
