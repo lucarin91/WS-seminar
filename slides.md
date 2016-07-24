@@ -1,7 +1,7 @@
 # Authentication method in the web
 ### WS - Seminar
 
-<small>Created by <a href="http://lucar.in" target="_blank">Luca Rinaldi</a></small>
+<small>Created by <a href="http://lucar.in">Luca Rinaldi</a></small>
 
 
 
