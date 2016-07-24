@@ -1,4 +1,4 @@
-# Authentication method in the web
+# Web Authentication Methods
 ### WS - Seminar
 
 <small>Created by <a href="http://lucar.in">Luca Rinaldi</a></small>
