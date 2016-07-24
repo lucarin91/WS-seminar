@@ -115,7 +115,28 @@ is important that the sessionID is:
 
 
 ## How it work
-![session-flow](img/session_flow.jpg)
+<pre>
+    +---------+                          +---------+              +---------+
+    |         |  (A) POST /authenticate  |         |              |         |
+    |         +-------------------------->         |     Create   |         |
+    |         |  username=..&password=.. |         | (B) session  |         |
+    |         |                          |         +-------------->         |
+    |         |   (C) HTTP 200 OK        |         |              |         |
+    |         <--------------------------+         |              |         |
+    |         |  Set-cookie: session=..  |   Web   |              | Session |
+    | Client  |                          |  Server |              | Manager |
+    |         |                          |         |              |         |
+    |         |                          |         |              |         |
+    |         |   (D) HTTP GET           |         |              |         |
+    |         +-------------------------->         |     Get user |         |
+    |         |    Cookie: session=..    |         | (E) session  |         |
+    |         |                          |         +-------------->         |
+    |         |   (F) HTTP 200 OK        |         |              |         |
+    |         <--------------------------+         |              |         |
+    +---------+                          +---------+              +---------+
+</pre>
+
+<!--![session-flow](img/session_flow.jpg)-->
 
 note:
 it use cookies to store sessionID on the client, than at each connection retrieve it from an hash-table inside the web server.
@@ -246,6 +267,29 @@ eyJpc3MiOiJsdWNhci5pbiIsImV4cCI6MTQ2OTI2ODcwOSwibmFtZSI6Imx1Y2EiLCJhZG1pbiI6dHJ1
 .
 5Z5tKUacfE-r_L56uaddeimgREpgk39Fbx6EJ3cuTJg
 ```
+
+
+## Authentication Flow
+<pre>
+            +---------+                            +---------+
+            |         |  (A) POST /authenticate    |         |
+            |         +---------------------------->         +--------+
+            |         |  username=..&password=..   |         |  (B)   |
+            |         |                            |         |Generate|
+            |         |   (C) HTTP 200 OK          |         |  JWT   |
+            |         <----------------------------+         <--------+
+            |         |      token: '..JWT..'      |         |
+            |         |                            |   Web   |
+            | Client  |                            |  Server |
+            |         |                            |         |
+            |         |   (D) HTTP GET             |         |
+            |         +---------------------------->         +--------+
+            |         | Authentication: Bearer JWT |         |  (E)   |
+            |         |                            |         |Validate|
+            |         |   (F) HTTP 200 OK          |         |  JWT   |
+            |         <----------------------------+         <--------+
+            +---------+                            +---------+
+</pre>
 
 
 ## Insecure implementation
