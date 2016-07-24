@@ -1,7 +1,7 @@
 # Authentication method in the web
 ### WS - Seminar
 
-<small>Created by <a href="http://lucar.in">Luca Rinaldi</a></small>
+<small>Created by <a href="http://lucar.in" target="_blank">Luca Rinaldi</a></small>
 
 
 
@@ -25,7 +25,7 @@ Original standardization document **rfc2617** ("HTTP Authentication: Basic and D
 - rfc6750 "The OAuth 2.0 Authorization Framework: Bearer Token Usage"
 
 
-# Basic Authentication
+# Basic HTTP Authentication *[rfc7617]*
 A simple authentication system, in with the client send `user-id:password` encoded in Base64 in the `Authentication` header field
 
 for example for user-id "Aladdin" and password "open sesame":
@@ -49,10 +49,23 @@ To receive authorization, the client:
     characters ([RFC0020]).
 
 
-## Digest Authentication
-It's a challenge responce system, here the username and the password it's never trasmit in clear text.
+## Digest HTTP Authentication *[rfc7616]*
+It's a challenge responce system, the username and the password it is never transmit in clear text.
 
 The server send a random `nonce` and the client have to reply with `hash(user:password:nonce)`
+
+```
+Authorization: Digest username="Mufasa",
+                      realm="http-auth@example.org",
+                      uri="/dir/index.html",
+                      algorithm=MD5,
+                      nonce="7ypf/xlj9XXwfDPEoM4URrv/xwf94BcCAzFZH4GiTo0v",
+                      nc=00000001,
+                      cnonce="f2/wE4q74E6zIJEtWaHKaf5wv/H5QzzpXusqGemxURZJ",
+                      qop=auth,
+                      response="8ca523f5e9506fed4657c9700eebdbec",
+                      opaque="FQhe/qaU925kfnzjCev0ciny7QMkPqMAFRtzCUYo5tdS"
+```
 
 note:
 TO-ADD:
@@ -88,24 +101,24 @@ HTML is a stateless protocol, but usually application needs to keep information 
 
 
 # HTTP Web Session
-with HTTP/1.1 and CGI there is the possibility to implement a statefull server
+With HTTP/1.1 and CGI programming language and framework start to implement Web Session Manager.
 
-the we server can manage the session and retrieve it by a sessionID.
+They maintain session with the users and identified them with a **sessionID**.
 
+note:
 https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#HTTP_session
 https://en.wikipedia.org/wiki/Common_Gateway_Interface
 
-note:
 is important that the sessionID is:
-- higlly random, to avoid prediction
+- highly random, to avoid prediction
 - sufficient long, to avoid brute force attack (>= 50 character)
 
 
-## How thous work
+## How it work
 ![session-flow](img/session_flow.jpg)
 
 note:
-it use cookies to store sessionID on the client, than at each connection retrieve it from an hashtable inside the webserver.
+it use cookies to store sessionID on the client, than at each connection retrieve it from an hash-table inside the web server.
 
 http://machinesaredigging.com/2013/10/29/how-does-a-web-session-work/
 
@@ -114,10 +127,14 @@ http://machinesaredigging.com/2013/10/29/how-does-a-web-session-work/
 ```php
 <?php
 session_start();
-if (!isset($_SESSION['count'])) {
-  $_SESSION['count'] = 0;
+if (!isset($_SESSION['user'])) {
+    if ($_POST['username'] == 'luca' && $_POST['password'] == 'password'){
+        $_SESSION['user'] = 'luca';
+        $_SESSION['admin'] = true;
+    }
 } else {
-  $_SESSION['count']++;
+  echo "username $_SESSION['user'] is logged ".
+        ($_SESSION['admin'] ? "as admin" : "as user");
 }
 ?>
 ```
@@ -126,8 +143,13 @@ note:
 http://php.net/manual/en/reserved.variables.session.php
 
 
-## security issue
-- Hijacking, by observation, brute force or XSS.
+
+# Session/Cookies security issue
+- Session Hijacking thought:
+    - observation
+    - brute force
+    - XSS
+
 - CSRF, because it rely on cookies
 
 note:
@@ -139,7 +161,7 @@ https://www.owasp.org/index.php/Session_hijacking_attack
 # Tokens
 It is an object contained the security credential to a login session
 
-It can be:
+It can be of two type:
 - self-contained token
 - opaque token
 
@@ -150,23 +172,74 @@ note:
 
 
 
-## JWT
-*rfc7519* https://tools.ietf.org/html/rfc7519
-```
+# JSON Web Token *[rfc7519]*
+It is a compact claims representation in JSON format.
+
+It safeguard its integrity by:
+- JSON Web Signature (JWS), a sign system.
+- JSON Web Encryption (JWE), an encryption system.
+
+note:
+JSON Web Token (JWT) is a compact claims representation format intended for space constrained environments such as HTTP Authorization headers and URI query parameters. JWTs encode claims to be transmitted as a JSON [RFC7159] object that is used as the payload of a JSON Web Signature (JWS) [JWS] structure or as the plaintext of a JSON Web Encryption (JWE) [JWE] structure, enabling the claims to be digitally signed or integrity protected with a Message Authentication Code (MAC) and/or encrypted. JWTs are always represented using the JWS Compact Serialization or the JWE Compact Serialization.
+
+
+## Claims
+A piece of information asserted about a subject.
+
+They can be:
+- registered claims names (i.e. iss, exp, iat, jti..)
+- public claims, the one in the IANA database
+- private claims names, chosen by the users
+
+note:
+registered claims names:
+    - iss: The issuer of the token
+    - exp: Token expiration time defined in Unix time
+    - iat: "Issued at" time, in Unix time, at which the token was issued
+    - jti: JWT ID claim provides a unique identifier for the JWT
+
+
+## Structure [1]
+Header:
+```json
 {
     "alg": "HS256",
     "typ": "JWT"
 }
+```
+
+Payload:
+```json
 {
-    "iss": "lucar.in"
-    "exp": 1469268709, // Sat Jul 23 12:09:50 CEST 2016
+    "iss": "lucar.in",
+    "exp": 1469268709,
     "name": "luca",
     "admin": true,
 }
 ```
 
-after encoded
+Verify signature:
+```javascript
+HMACSHA256(
+  base64UrlEncode(header) + "." +
+  base64UrlEncode(payload),
+  "secret"
+)
 ```
+
+
+## Structure [2]
+Generate the encoding version:
+```javascript
+base64UrlEncode(header) +
+"." +
+base64UrlEncode(payload) +
+"." +
+verify_signature
+```
+
+Encoded JWT:
+```JSON
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
 .
 eyJpc3MiOiJsdWNhci5pbiIsImV4cCI6MTQ2OTI2ODcwOSwibmFtZSI6Imx1Y2EiLCJhZG1pbiI6dHJ1ZX0
@@ -175,31 +248,27 @@ eyJpc3MiOiJsdWNhci5pbiIsImV4cCI6MTQ2OTI2ODcwOSwibmFtZSI6Imx1Y2EiLCJhZG1pbiI6dHJ1
 ```
 
 
-## Registered Claims
-- iss: The issuer of the token
-- sub: The subject of the token
-- aud: The audience of the token
-- exp: Token expiration time defined in Unix time
-- nbf: "Not before" time that identifies the time before which the JWT must not be accepted for processing
-- iat: "Issued at" time, in Unix time, at which the token was issued
-- jti: JWT ID claim provides a unique identifier for the JWT
-
-
 ## Insecure implementation
+critical-vulnerabilities-in-json-web-token-libraries
+
+note:
 https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/
 
 
 
-## OAuth
-**rfc6749** https://tools.ietf.org/html/rfc6749
-
+# OAuth 2.0 *[rfc6749]*
 It enables a third-party application to obtain limited access to an HTTP service in behalf of a resource owner.
+
+For example: </br>
+*Draw.io, an online flow chart editor, that request the user to access their storage space on Dropbox, to save and load files.* <!-- .element: style="font-size: 26px"-->
 
 
 ## Roles
-- resource owner (the end-user)
-- client (the third-part application)
-- resource server and authorization server (the service with the resource)
+- resource owner, the end-user
+
+- client, the third-part application
+
+- resource server and authorization server, the service that manges the resource
 
 note:
 - resource owner, An entity capable of granting access to a protected resource. When the resource owner is a person, it is referred to as an end-user.
@@ -211,7 +280,7 @@ note:
 - authorization server, The server issuing access tokens to the client after successfully     authenticating the resource owner and obtaining authorization.
 
 
-## Flow of authentication
+## General authentication flow
 <pre>
             +--------+                               +---------------+
             |        |--(A)- Authorization Request ->|   Resource    |
@@ -242,8 +311,15 @@ note:
 
 
 ## Obtaining Authentication
-OAuth defines four grant types:
+- authorization code, optimized for **confidential clients**.
 
+- implicit, optimized for **public clients**.
+
+- resource owner password credentials, where the resource owner has a trust relationship with the client.
+
+- client credentials, when the client is requesting access to the protected resources under its control.
+
+note:
 - authorization code, The authorization code grant type is used to obtain both access tokens and refresh tokens and is optimized for **confidential clients**.
 
 - implicit, The implicit grant type is used to obtain access tokens (it does not support the issuance of refresh tokens) and is optimized for **public clients** known to operate a particular redirection URI.
@@ -254,57 +330,63 @@ OAuth defines four grant types:
 
 
 
-## OpenID
-**OpenID Connect 1.0** (http://openid.net/specs/openid-connect-core-1_0.html)
-
+# OpenID *[OpenID Connect 1.0]*
 An identity layer on top of the OAuth 2.0 protocol.
 
 It enables Clients to verify the identity of the End-User based on the authentication performed by an Authorization Server.
 
+For example: </br>
+*Flicker.com use as Authentication provider Yahoo to login an manager their users* <!-- .element: style="font-size: 26px"-->
+
 
 ## Connection Flow
 <pre>
-            +--------+                                   +--------+
-            |        |                                   |        |
-            |        |---------(1) AuthN Request-------->|        |
-            |        |                                   |        |
-            |        |  +--------+                       |        |
-            |        |  |        |                       |        |
-            |        |  |  End-  |<--(2) AuthN & AuthZ-->|        |
-            |        |  |  User  |                       |        |
-            |   RP   |  |        |                       |   OP   |
-            |        |  +--------+                       |        |
-            |        |                                   |        |
-            |        |<--------(3) AuthN Response--------|        |
-            |        |                                   |        |
-            |        |---------(4) UserInfo Request----->|        |
-            |        |                                   |        |
-            |        |<--------(5) UserInfo Response-----|        |
-            |        |                                   |        |
-            +--------+                                   +--------+
+          +----------+                                   +----------+
+          |          |                                   |          |
+          |          |---------(A) AuthN Request-------->|          |
+          |          |                                   |          |
+          |          |  +--------+                       |          |
+          |          |  |        |                       |          |
+          |          |  |  End-  |<--(B) AuthN & AuthZ-->|          |
+          |          |  |  User  |                       |          |
+          |  Client  |  |        |                       |  OpenID  |
+          |          |  +--------+                       | Provider |
+          |          |                                   |          |
+          |          |<--------(C) AuthN Response--------|          |
+          |          |                                   |          |
+          |          |---------(D) UserInfo Request----->|          |
+          |          |                                   |          |
+          |          |<--------(E) UserInfo Response-----|          |
+          |          |                                   |          |
+          +----------+                                   +----------+
 </pre>
 
 note:
-1. The RP (Client) sends a request to the OpenID Provider (OP).
-1. The OP authenticates the End-User and obtains authorization.
-1. The OP responds with an ID Token and usually an Access Token.
-1. The RP can send a request with the Access Token to the UserInfo Endpoint.
-1. The UserInfo Endpoint returns Claims about the End-User.
+- (A) The RP (Client) sends a request to the OpenID Provider (OP).
+- (B) The OP authenticates the End-User and obtains authorization.
+- (C) The OP responds with an ID Token and usually an Access Token.
+- (D) The RP can send a request with the Access Token to the UserInfo Endpoint.
+- (E) The UserInfo Endpoint returns Claims about the End-User.
 
 
 
-## security issue
-- XSS, it's possible to steal saved token with XSS (we can't use `HttpOnly`)
-- the token can contain sensible information
+# Token Security issue
+- XSS, it's possible to steal saved token
+
+- Invalidation system prone to error
+
+- They can contain sensible information
+
+note:
+we can't use `HttpOnly` cookie flag
 
 
-
-# Session vs Token
+# Session vs Token Authentication
 Token are:
 - scalable
 - efficient (memory and computational)
 - CSRF immune
-- Cross Domain and CORS
+- Cross Domain and CORS (Cross-origin resource sharing)
 
 Session are:
 - centralized control
@@ -314,10 +396,10 @@ Session are:
 
 
 # Conclusion
-If correcttly implemented either the two system have the same security
-streanth.
+If correctly implemented either the two system have the same security
+strength.
 
-One or the other depence of the gool of the project, but the token implementation is more general and 'pronta' for mobile and modern web app application.
+One or the other dependence of the goal of the project, but the token implementation is more general and ready for mobile and modern web app application.
 
 
 
