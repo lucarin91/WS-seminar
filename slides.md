@@ -20,8 +20,11 @@
 
 # HTTP Authentication Framework
 Originally standardize in **rfc2617** by IETF(Internet Engineering Task Force) and than updated with:
+
 - rfc7617 "The 'Basic' HTTP Authentication Scheme"
+
 - rfc7616 "HTTP Digest Access Authentication"
+
 - rfc6750 "The OAuth 2.0 Authorization Framework: Bearer Token Usage"
 
 
@@ -50,7 +53,7 @@ To receive authorization, the client:
 
 
 ## Digest HTTP Authentication *[rfc7616]*
-It's a challenge responce system, neither username or password are trasmitted in clear text.
+It's a challenge response system, where the password is not transmitted in clear text.
 
 The server send a random `nonce` and the client reply with `hash(user:password:nonce)`
 
@@ -77,9 +80,7 @@ TO-ADD:
 A security token with the property that any party in possession of
 the token (a "bearer") can use.
 
-Using a bearer token does not
-require a bearer to prove possession of cryptographic key material
-(proof-of-possession).
+Using a bearer token does not require a bearer to prove possession of cryptographic key material (proof-of-possession).
 
 ```
 GET /resource HTTP/1.1
@@ -92,9 +93,7 @@ Authorization: Bearer mF_9.B5f-4.1JqM
 # HTTP is stateless
 We want to avoid to communicate at every request username and password.
 
-We need a way to authenticate a client throw a set of consecutively request.
-
-We want to save specific data for every users.
+We want to save and retrieve specific data for every logged users.
 
 note:
 HTML is a stateless protocol, but usually application needs to keep information between two distinct calls.
@@ -115,7 +114,7 @@ is important that the sessionID is:
 - sufficient long, to avoid brute force attack (>= 50 character)
 
 
-## How it work
+## Web Session Flow
 <pre>
     +---------+                          +---------+              +---------+
     |         |  (A) POST /authenticate  |         |              |         |
@@ -140,12 +139,12 @@ is important that the sessionID is:
 <!--![session-flow](img/session_flow.jpg)-->
 
 note:
-it use cookies to store sessionID on the client, than at each connection retrieve it from an hash-table inside the web server.
+it uses cookies to store sessionID on the client, than at each connection retrieve it from an hash-table inside the web server.
 
 http://machinesaredigging.com/2013/10/29/how-does-a-web-session-work/
 
 
-## PHP example
+## Web Session PHP example
 ```php
 <?php
 session_start();
@@ -166,13 +165,13 @@ http://php.net/manual/en/reserved.variables.session.php
 
 
 
-# Session/Cookies security issue
+# Web Session security issue
 - Session Hijacking thought:
     - observation
     - brute force
     - XSS
 
-- CSRF, because it rely on cookies
+- CSRF (Cross-site request forgery), because it relies on cookies
 
 note:
 CSRF: the site can be put in <iframe>, generate a POST request and re-use the existing authentication cookie to another request.
@@ -180,20 +179,21 @@ https://www.owasp.org/index.php/Session_hijacking_attack
 
 
 
-# Session/Cookies issue
-- centralise information
+# Session limitation
+- Centralize information
 
-- memory and cpu overhead
+- Memory and cpu overhead
 
-- problems with Cross Domain and CORS (Cross-origin resource sharing)
+- Can't work with Cross Domain and CORS (Cross-origin resource sharing)
 
-- simple authentication flow
+- Simple authentication flow
+
 
 
 # Tokens
-It is an object contained the security credential to a login session
+It is a string that contain security credential to a login session.
 
-It can be of two type:
+It can be of two types:
 - self-contained token
 - opaque token
 
@@ -207,11 +207,9 @@ note:
 # JSON Web Token *[rfc7519]*
 It is a self-contained token with a set of keys/value pairs in JSON format.
 
-It safeguard its integrity by:
-- JSON Web Signature (JWS), a sign system.
-- JSON Web Encryption (JWE), an encryption system.
+It safeguard its integrity with JSON Web Signature (JWS) or JSON Web Encryption (JWE)
 
-for example:
+Am example of JWT:
 ```JSON
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
 .
@@ -227,7 +225,7 @@ JSON Web Token (JWT) is a compact claims representation format intended for spac
 ## Claims
 A piece of information asserted about a subject.
 
-We can use to write session data of the user.
+We can use it to write session data of the users.
 
 They can be:
 - registered claims names (i.e. iss, exp, iat, jti..)
@@ -319,14 +317,14 @@ eyJpc3MiOiJsdWNhci5pbiIsImV4cCI6MTQ2OTI2ODcwOSwibmFtZSI6Imx1Y2EiLCJhZG1pbiI6dHJ1
 
 
 # OAuth 2.0 *[rfc6749]*
-It enables a third-party application to obtain limited access to an HTTP service in behalf of a resource owner.
+It enables a third-party application to obtain limited access to a service in behalf of a user.
 
 Three parties:
 - resource owner (end-user)
 
 - client (third-party application)
 
-- resource and authorization server (service that own the resources)
+- resource and authorization server (service)
 
 For example: </br>
 *Draw.io, an online flow chart editor, that request the user to access their storage space on Dropbox, to save and load files.* <!-- .element: style="font-size: 26px"-->
@@ -481,25 +479,25 @@ note:
 we can't use `HttpOnly` cookie flag
 
 
-# Session vs Token Authentication
-Token are:
-- scalable
-- efficient (memory and computational)
-- CSRF immune
-- Cross Domain and CORS (Cross-origin resource sharing)
+# Why use Token
+- Scalable
 
-Session are:
-- centralized control
-- XSS immune with `httpOnly` cookies
-- less data send to each request
+- Efficient (memory and CPU)
+
+- CSRF immune
+
+- Work with Cross Domain and CORS (Cross-origin resource sharing)
+
+- Mobile ready
 
 
 
 # Conclusion
-If correctly implemented either the two system have the same security
-strength.
+If correctly implemented either web session or token system can have strong security.
 
-One or the other dependence of the goal of the project, but the token implementation is more general and ready for mobile and modern web app application.
+The choose on the two system dependence of the goal of the project.
+
+But token mechanism are more general and ready for mobile and modern web application.
 
 
 
