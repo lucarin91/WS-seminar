@@ -3,6 +3,8 @@
 
 <small>Created by [Luca Rinaldi](http://lucar.in)</small>
 
+
+
 # Agenda
 - HTTP authentication framework
 
