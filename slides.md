@@ -205,8 +205,7 @@ note:
 
 
 # JSON Web Token *[rfc7519]*
-It is a set of keys/value pairs
-  compact claims representation in JSON format.
+It is a self-contained token with a set of keys/value pairs in JSON format.
 
 It safeguard its integrity by:
 - JSON Web Signature (JWS), a sign system.
@@ -227,6 +226,8 @@ JSON Web Token (JWT) is a compact claims representation format intended for spac
 
 ## Claims
 A piece of information asserted about a subject.
+
+We can use to write session data of the user.
 
 They can be:
 - registered claims names (i.e. iss, exp, iat, jti..)
