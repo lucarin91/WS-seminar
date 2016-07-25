@@ -1,6 +1,11 @@
 # Web Security (WS) - Seminar
 A reveal.js presentation about the difference authentication mechanism in web application.
 
+**Get the slides**:
+- [web version](http://slides.lucar.in/ws)
+- [pdf version](http://slides.lucar.in/ws?print-pdf)
+- [markdown version](./slides.md)
+
 **Agenda**:
 - HTTP Authentication Framework
   - Basic HTTP Authentication *[rfc7617]*
