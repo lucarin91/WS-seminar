@@ -3,18 +3,16 @@
 
 <small>Created by [Luca Rinaldi](http://lucar.in)</small>
 
-
-
 # Agenda
 - HTTP authentication framework
 
-- session authentication system
+- Session authentication system
 
-- token authentication system
+- Token authentication system
 
-- token vs session
+- Token vs Session
 
-- conclusion
+- Conclusion
 
 
 
@@ -28,7 +26,7 @@ Originally standardize in **rfc2617** by IETF(Internet Engineering Task Force) a
 - rfc6750 "The OAuth 2.0 Authorization Framework: Bearer Token Usage"
 
 
-# Basic HTTP Authentication *[rfc7617]*
+## Basic HTTP Authentication *[rfc7617]*
 A simple authentication system, in with the client send `user-id:password` encoded in Base64 in the `Authentication` header field
 
 for example for user-id "Aladdin" and password "open sesame":
@@ -76,7 +74,7 @@ TO-ADD:
 - the other required header keys
 
 
-## Bearer Token
+## Bearer Token *[rfc6750]*
 A security token with the property that any party in possession of
 the token (a "bearer") can use.
 
@@ -100,7 +98,7 @@ HTML is a stateless protocol, but usually application needs to keep information 
 
 
 
-# HTTP Web Session
+# Web Session Manager
 With HTTP/1.1 and CGI programming language and framework start to implement Web Session Manager.
 
 They maintain session with the users and identified them with a **sessionID**.
@@ -222,25 +220,7 @@ note:
 JSON Web Token (JWT) is a compact claims representation format intended for space constrained environments such as HTTP Authorization headers and URI query parameters. JWTs encode claims to be transmitted as a JSON [RFC7159] object that is used as the payload of a JSON Web Signature (JWS) [JWS] structure or as the plaintext of a JSON Web Encryption (JWE) [JWE] structure, enabling the claims to be digitally signed or integrity protected with a Message Authentication Code (MAC) and/or encrypted. JWTs are always represented using the JWS Compact Serialization or the JWE Compact Serialization.
 
 
-## Claims
-A piece of information asserted about a subject.
-
-We can use it to write session data of the users.
-
-They can be:
-- registered claims names (i.e. iss, exp, iat, jti..)
-- public claims, the one in the IANA database
-- private claims names, chosen by the users
-
-note:
-registered claims names:
-    - iss: The issuer of the token
-    - exp: Token expiration time defined in Unix time
-    - iat: "Issued at" time, in Unix time, at which the token was issued
-    - jti: JWT ID claim provides a unique identifier for the JWT
-
-
-## Structure [1]
+## Structure
 Header:
 ```json
 {
@@ -269,27 +249,7 @@ HMACSHA256(
 ```
 
 
-## Structure [2]
-Generate the encoding version:
-```javascript
-base64UrlEncode(header) +
-"." +
-base64UrlEncode(payload) +
-"." +
-verify_signature
-```
-
-Encoded JWT:
-```JSON
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-.
-eyJpc3MiOiJsdWNhci5pbiIsImV4cCI6MTQ2OTI2ODcwOSwibmFtZSI6Imx1Y2EiLCJhZG1pbiI6dHJ1ZX0
-.
-5Z5tKUacfE-r_L56uaddeimgREpgk39Fbx6EJ3cuTJg
-```
-
-
-## Authentication Flow
+## JWT Authentication Flow
 <pre>
 
          +---------+                              +---------+
@@ -339,7 +299,7 @@ note:
 - authorization server, The server issuing access tokens to the client after successfully     authenticating the resource owner and obtaining authorization.
 
 
-## General authentication flow
+## OAuth Authentication Flow
 <pre>
 
         +----------+
@@ -380,91 +340,6 @@ note:
 (D) The client requests an access token from the authorization server's token endpoint by including the authorization code received in the previous step. When making the request, the client authenticates with the authorization server. The client includes the redirection URI used to obtain the authorization code for verification.
 
 (E) The authorization server authenticates the client, validates the authorization code, and ensures that the redirection URI received matches the URI used to redirect the client in step (C). If valid, the authorization server responds back with an access token and, optionally, a refresh token.
-
-<pre>
-            +--------+                               +---------------+
-            |        |--(A)- Authorization Request ->|   Resource    |
-            |        |                               |     Owner     |
-            |        |<-(B)-- Authorization Grant ---|               |
-            |        |                               +---------------+
-            |        |
-            |        |                               +---------------+
-            |        |--(C)-- Authorization Grant -->| Authorization |
-            | Client |                               |     Server    |
-            |        |<-(D)----- Access Token -------|               |
-            |        |                               +---------------+
-            |        |
-            |        |                               +---------------+
-            |        |--(E)----- Access Token ------>|    Resource   |
-            |        |                               |     Server    |
-            |        |<-(F)--- Protected Resource ---|               |
-            +--------+                               +---------------+
-</pre>
-- (A) The client requests authorization from the resource owner. The authorization request can be made directly to the resource owner (as shown), or preferably indirectly via the authorization server as an intermediary.
-- (B) The client receives an authorization grant, which is a credential representing the resource owner's authorization, expressed using one of four grant types defined in this specification or using an extension grant type. The authorization grant type depends on the method used by the client to request authorization and the types supported by the authorization server.
-- (C) The client requests an access token by authenticating with the authorization server and presenting the authorization grant.
-- (D) The authorization server authenticates the client and validates the authorization grant, and if valid, issues an access token.
-- (E) The client requests the protected resource from the resource server and authenticates by presenting the access token.
-- (F) The resource server validates the access token, and if valid, serves the request.
-
-
-## Obtaining Authentication
-- authorization code, optimized for **confidential clients**.
-
-- implicit, optimized for **public clients**.
-
-- resource owner password credentials, where the resource owner has a trust relationship with the client.
-
-- client credentials, when the client is requesting access to the protected resources under its control.
-
-note:
-- authorization code, The authorization code grant type is used to obtain both access tokens and refresh tokens and is optimized for **confidential clients**.
-
-- implicit, The implicit grant type is used to obtain access tokens (it does not support the issuance of refresh tokens) and is optimized for **public clients** known to operate a particular redirection URI.
-
-- resource owner password credentials, The resource owner password credentials grant type is suitable in cases where the **resource owner has a trust relationship with the client**, such as the device operating system or a highly privileged application.
-
-- client credentials, The client can request an access token using only its client credentials (or other supported means of authentication) when the client is requesting access to the protected resources under its control, or those of another resource owner that have been previously arranged with the authorization server (the method of which is beyond the scope of this specification).
-
-
-
-# OpenID *[OpenID Connect 1.0]*
-An identity layer on top of the OAuth 2.0 protocol.
-
-It enables Clients to verify the identity of the End-User based on the authentication performed by an Authorization Server.
-
-For example: </br>
-*Flicker.com use as Authentication provider Yahoo to login an manager their users* <!-- .element: style="font-size: 26px"-->
-
-
-## Connection Flow
-<pre>
-          +----------+                                   +----------+
-          |          |                                   |          |
-          |          |---------(A) AuthN Request-------->|          |
-          |          |                                   |          |
-          |          |  +--------+                       |          |
-          |          |  |        |                       |          |
-          |          |  |  End-  |<--(B) AuthN & AuthZ-->|          |
-          |          |  |  User  |                       |          |
-          |  Client  |  |        |                       |  OpenID  |
-          |          |  +--------+                       | Provider |
-          |          |                                   |          |
-          |          |<--------(C) AuthN Response--------|          |
-          |          |                                   |          |
-          |          |---------(D) UserInfo Request----->|          |
-          |          |                                   |          |
-          |          |<--------(E) UserInfo Response-----|          |
-          |          |                                   |          |
-          +----------+                                   +----------+
-</pre>
-
-note:
-- (A) The RP (Client) sends a request to the OpenID Provider (OP).
-- (B) The OP authenticates the End-User and obtains authorization.
-- (C) The OP responds with an ID Token and usually an Access Token.
-- (D) The RP can send a request with the Access Token to the UserInfo Endpoint.
-- (E) The UserInfo Endpoint returns Claims about the End-User.
 
 
 
@@ -520,7 +395,5 @@ But token mechanism are more general and ready for mobile and modern web applica
 - [**Critical vulnerabilities in JSON Web Token libraries** - Auth0](https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/). (2015, March 31). Retrieved July 23, 2016, from https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/
 
 - [RFC 6749 - **The OAuth 2.0 Authorization Framework** - IETF](https://tools.ietf.org/html/rfc6749). (2012, October). Retrieved July 23, 2016, from https://tools.ietf.org/html/rfc6749
-
-- [**OpenID Connect Core 1.0 incorporating errata set 1** - OpenID Foundation](http://openid.net/specs/openid-connect-core-1_0.html). (2014, November 8). Retrieved July 23, 2016, from http://openid.net/specs/openid-connect-core-1_0.html
 
 - [**Cookies vs. Tokens: The Definitive Guide** - DZone Integration](https://dzone.com/articles/cookies-vs-tokens-the-definitive-guide). (2016, June 2). Retrieved July 23, 2016, from https://dzone.com/articles/cookies-vs-tokens-the-definitive-guide
