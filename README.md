@@ -5,7 +5,7 @@ A reveal.js presentation about the difference authentication mechanism in web ap
 - HTTP Authentication Framework
   - Basic HTTP Authentication *[rfc7617]*
   - Digest HTTP Authentication *[rfc7616]*
-  - Bearer Token
+  - Bearer Token HTTP Authentication *[rfc6750]*
 
 - Web Session Manager
 	- Web Session Flow
