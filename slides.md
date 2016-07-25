@@ -103,7 +103,7 @@ HTML is a stateless protocol, but usually application needs to keep information 
 # Web Session Manager
 With HTTP/1.1 and CGI programming language and framework start to implement Web Session Manager.
 
-They maintain session with the users and identified them with a **sessionID**.
+They maintain session with the users and identified it with a **sessionID**.
 
 note:
 https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#HTTP_session
@@ -372,9 +372,9 @@ we can't use `HttpOnly` cookie flag
 # Conclusion
 If correctly implemented either web session or token system can have strong security.
 
-The choose on the two system dependence of the goal of the project.
+The type of authentication system really dependence on the goal of the project.
 
-But token mechanism are more general and ready for mobile and modern web application.
+But token mechanisms are more general and ready for mobile and modern web application.
 
 
 
