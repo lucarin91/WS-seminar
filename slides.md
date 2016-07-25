@@ -19,7 +19,7 @@
 
 
 # HTTP Authentication Framework
-Original standardization document **rfc2617** ("HTTP Authentication: Basic and Digest Access Authentication") from IETF(Internet Engineering Task Force) and than updated with:
+Originally standardize in **rfc2617** by IETF(Internet Engineering Task Force) and than updated with:
 - rfc7617 "The 'Basic' HTTP Authentication Scheme"
 - rfc7616 "HTTP Digest Access Authentication"
 - rfc6750 "The OAuth 2.0 Authorization Framework: Bearer Token Usage"
@@ -50,9 +50,9 @@ To receive authorization, the client:
 
 
 ## Digest HTTP Authentication *[rfc7616]*
-It's a challenge responce system, the username and the password it is never transmit in clear text.
+It's a challenge responce system, neither username or password are trasmitted in clear text.
 
-The server send a random `nonce` and the client have to reply with `hash(user:password:nonce)`
+The server send a random `nonce` and the client reply with `hash(user:password:nonce)`
 
 ```
 Authorization: Digest username="Mufasa",
@@ -75,8 +75,9 @@ TO-ADD:
 
 ## Bearer Token
 A security token with the property that any party in possession of
-the token (a "bearer") can use the token in any way that any other
-party in possession of it can.  Using a bearer token does not
+the token (a "bearer") can use.
+
+Using a bearer token does not
 require a bearer to prove possession of cryptographic key material
 (proof-of-possession).
 
@@ -88,12 +89,12 @@ Authorization: Bearer mF_9.B5f-4.1JqM
 
 
 
-# From stateless to statefull
-we want to avoid to communicate at every request username and password.
+# HTTP is stateless
+We want to avoid to communicate at every request username and password.
 
-we need a way to authenticate a client throw a set of consecutively request.
+We need a way to authenticate a client throw a set of consecutively request.
 
-we want to save same data for every single user
+We want to save specific data for every users.
 
 note:
 HTML is a stateless protocol, but usually application needs to keep information between two distinct calls.
@@ -179,6 +180,16 @@ https://www.owasp.org/index.php/Session_hijacking_attack
 
 
 
+# Session/Cookies issue
+- centralise information
+
+- memory and cpu overhead
+
+- problems with Cross Domain and CORS (Cross-origin resource sharing)
+
+- simple authentication flow
+
+
 # Tokens
 It is an object contained the security credential to a login session
 
@@ -194,7 +205,8 @@ note:
 
 
 # JSON Web Token *[rfc7519]*
-It is a compact claims representation in JSON format.
+It is a set of keys/value pairs
+  compact claims representation in JSON format.
 
 It safeguard its integrity by:
 - JSON Web Signature (JWS), a sign system.
