@@ -174,7 +174,7 @@ http://php.net/manual/en/reserved.variables.session.php
 - CSRF (Cross-site request forgery), because it relies on cookies
 
 note:
-CSRF: the site can be put in <iframe>, generate a POST request and re-use the existing authentication cookie to another request.
+CSRF, the site can be put in iframe, generate a POST request and re-use the existing authentication cookie to another request.
 https://www.owasp.org/index.php/Session_hijacking_attack
 
 
