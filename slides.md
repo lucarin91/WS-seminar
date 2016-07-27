@@ -1,4 +1,4 @@
-# Web Authentication Methods
+# Authentication Methods in Modern Web Applications
 ### WS - Seminar
 
 <small>Created by [Luca Rinaldi](http://lucar.in)</small>
@@ -6,11 +6,11 @@
 
 
 # Agenda
-- HTTP authentication framework
+- HTTP Authentication Framework
 
-- Session authentication system
+- Session Authentication Systems
 
-- Token authentication system
+- Token Authentication Systems
 
 - Token vs Session
 
@@ -19,7 +19,7 @@
 
 
 # HTTP Authentication Framework
-Originally standardize in **rfc2617** by IETF(Internet Engineering Task Force) and than updated with:
+Originally standardized in **rfc2617** by IETF(Internet Engineering Task Force) and than updated with:
 
 - rfc7617 "The 'Basic' HTTP Authentication Scheme"
 
@@ -222,7 +222,7 @@ note:
 JSON Web Token (JWT) is a compact claims representation format intended for space constrained environments such as HTTP Authorization headers and URI query parameters. JWTs encode claims to be transmitted as a JSON [RFC7159] object that is used as the payload of a JSON Web Signature (JWS) [JWS] structure or as the plaintext of a JSON Web Encryption (JWE) [JWE] structure, enabling the claims to be digitally signed or integrity protected with a Message Authentication Code (MAC) and/or encrypted. JWTs are always represented using the JWS Compact Serialization or the JWE Compact Serialization.
 
 
-## Structure
+## JWT Structure
 Header:
 ```json
 {
