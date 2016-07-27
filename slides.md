@@ -14,7 +14,7 @@
 
 - Token vs Session
 
-- Conclusion
+- Conclusions
 
 
 
@@ -369,7 +369,7 @@ we can't use `HttpOnly` cookie flag
 
 
 
-# Conclusion
+# Conclusions
 If correctly implemented either web session or token system can have strong security.
 
 The type of authentication system really dependence on the goal of the project.
