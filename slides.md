@@ -1,7 +1,7 @@
-# Authentication Methods in Modern Web Applications
+# Authentication Methods in Modern Web Apps
 ### WS - Seminar
 
-<small>Created by [Luca Rinaldi](http://lucar.in)</small>
+<small>[Luca Rinaldi](http://lucar.in)</small>
 
 
 
@@ -19,7 +19,7 @@
 
 
 # HTTP Authentication Framework
-Originally standardized in **rfc2617** by IETF(Internet Engineering Task Force) and than updated with:
+Originally standardised in **rfc2617** by IETF and than updated with:
 
 - rfc7617 "The 'Basic' HTTP Authentication Scheme"
 
@@ -27,11 +27,14 @@ Originally standardized in **rfc2617** by IETF(Internet Engineering Task Force) 
 
 - rfc6750 "The OAuth 2.0 Authorization Framework: Bearer Token Usage"
 
+note:
+IETF = Internet Engineering Task Force
+
 
 ## Basic HTTP Authentication *[rfc7617]*
-A simple authentication system, in with the client send `user-id:password` encoded in Base64 in the `Authentication` header field
+A simple authentication system, in with the client sends `username:password` encoded in Base64 in the `Authentication` header field
 
-for example for user-id "Aladdin" and password "open sesame":
+e.g. a username "Aladdin" and password "open sesame" result in:
 ```
 Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
 ```
@@ -53,9 +56,9 @@ To receive authorization, the client:
 
 
 ## Digest HTTP Authentication *[rfc7616]*
-It's a challenge response system, where the password is not transmitted in clear text.
+It's a challenge response system, where the password is not transmitted as plain text.
 
-The server send a random `nonce` and the client reply with `hash(user:password:nonce)`
+The server sends a random `nonce` and the client replies with `HASH(username:password:nonce)`
 
 ```
 Authorization: Digest username="Mufasa",
@@ -78,7 +81,7 @@ TO-ADD:
 
 ## Bearer Token *[rfc6750]*
 A security token with the property that any party in possession of
-the token (a "bearer") can use.
+the token (a "bearer") can use it.
 
 Using a bearer token does not require a bearer to prove possession of cryptographic key material (proof-of-possession).
 
@@ -90,10 +93,10 @@ Authorization: Bearer mF_9.B5f-4.1JqM
 
 
 
-# HTTP is stateless
-We want to avoid to communicate at every request username and password.
+# HTTP Is Stateless
+We want to avoid retransmition of the username and password at every request.
 
-We want to save and retrieve specific data for every logged users.
+We want to save and retrieve specific data for every logged user.
 
 note:
 HTML is a stateless protocol, but usually application needs to keep information between two distinct calls.
@@ -101,9 +104,9 @@ HTML is a stateless protocol, but usually application needs to keep information 
 
 
 # Web Session Manager
-With HTTP/1.1 and CGI programming language and framework start to implement Web Session Manager.
+Starting from the introduction of HTTP/1.1 and CGI programming languages and framework allow the use of Web Session Managers.
 
-They maintain session with the users and identified it with a **sessionID**.
+They maintain open sessions with the users by identified them with a **sessionID**.
 
 note:
 https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#HTTP_session
@@ -144,7 +147,7 @@ it uses cookies to store sessionID on the client, than at each connection retrie
 http://machinesaredigging.com/2013/10/29/how-does-a-web-session-work/
 
 
-## Web Session PHP example
+## Web Session PHP Example
 ```php
 <?php
 session_start();
@@ -165,13 +168,13 @@ http://php.net/manual/en/reserved.variables.session.php
 
 
 
-# Web Session security issue
-- Session Hijacking thought:
+# Web Session Security Issue
+- Session Hijacking through:
     - observation
     - brute force
-    - XSS
+    - *Cross-site scripting*
 
-- CSRF (Cross-site request forgery), because it relies on cookies
+- *Cross-site request forgery* due to the cookies upon which them rely.
 
 note:
 CSRF, the site can be put in iframe, generate a POST request and re-use the existing authentication cookie to another request.
@@ -179,19 +182,19 @@ https://www.owasp.org/index.php/Session_hijacking_attack
 
 
 
-# Session limitation
-- Centralize information
+# Session Limitations
+- Centralised information
 
-- Memory and cpu overhead
+- Memory and CPU overhead
 
-- Can't work with Cross Domain and CORS (Cross-origin resource sharing)
+- Can't work with *Cross Domain* and *Cross-origin resource sharing*
 
 - Simple authentication flow
 
 
 
-# Tokens
-It is a string that contain security credential to a login session.
+# Tokens Systems
+It is a string that contains the security credentials to performe a login session.
 
 It can be of two types:
 - self-contained token
@@ -207,9 +210,9 @@ note:
 # JSON Web Token *[rfc7519]*
 It is a self-contained token with a set of keys/value pairs in JSON format.
 
-It safeguard its integrity with JSON Web Signature (JWS) or JSON Web Encryption (JWE)
+It safeguards its integrity through JSON Web Signature (JWS) or JSON Web Encryption (JWE)
 
-Am example of JWT:
+An example of JWT:
 ```JSON
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
 .
@@ -286,10 +289,10 @@ Three parties:
 
 - client (third-party application)
 
-- resource and authorization server (service)
+- resource and authorisation server (service)
 
 For example: </br>
-*Draw.io, an online flow chart editor, that request the user to access their storage space on Dropbox, to save and load files.* <!-- .element: style="font-size: 26px"-->
+*Draw.io, an online flow chart editor, that requests the user to access their storage space on Dropbox, to save and load files.* <!-- .element: style="font-size: 26px"-->
 
 note:
 - resource owner, An entity capable of granting access to a protected resource. When the resource owner is a person, it is referred to as an end-user.
@@ -345,37 +348,37 @@ note:
 
 
 
-# Token Security issue
-- XSS, it's possible to steal saved token
+# Token Security Issue
+- *Cross-site scripting*, it's possible to steal the saved token
 
-- Invalidation system prone to error
+- Invalidation system error prone
 
-- They can contain sensible information
+- They can contain sensitive information
 
 note:
 we can't use `HttpOnly` cookie flag
 
 
 
-# Why use Token
+# Why Use Token
 - Scalable
 
 - Efficient (memory and CPU)
 
-- CSRF immune
+- *Cross-site request forgery* immune
 
-- Work with Cross Domain and CORS (Cross-origin resource sharing)
+- Works with *Cross Domain* and *Cross-origin resource sharing*
 
 - Mobile ready
 
 
 
 # Conclusions
-If correctly implemented either web session or token system can have strong security.
+If correctly implemented either web session or token systems guarantee strong security.
 
-The type of authentication system really dependence on the goal of the project.
+The type of authentication system really dependences on the goal of the project.
 
-But token mechanisms are more general and ready for mobile and modern web application.
+However token mechanisms are more general and ready for mobile and modern web application.
 
 
 
